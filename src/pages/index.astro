@@ -1,11 +1,49 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import Layout from "../layouts/Layout.astro";
 ---
 
-<Layout>
-	<Welcome />
+<Layout title="IPv6 Test">
+  <main>
+    <h1>IPv6 Test</h1>
+    <p>
+      This page will test your IPv6 connectivity and DNS resolution.
+    </p>
+    <button id="test-button">Run Test</button>
+    <div id="results-container" style="display: none;">
+      <h2>Results</h2>
+      <p id="ipv6-result"></p>
+      <p id="dns-result"></p>
+    </div>
+  </main>
+  <script>
+    const testButton = document.getElementById('test-button');
+    const resultsContainer = document.getElementById('results-container');
+    const ipv6ResultElement = document.getElementById('ipv6-result');
+    const dnsResultElement = document.getElementById('dns-result');
+
+    testButton.addEventListener('click', async () => {
+      ipv6ResultElement.textContent = 'Testing...';
+      dnsResultElement.textContent = '';
+      resultsContainer.style.display = 'block';
+
+      try {
+        const response = await fetch('/api/ipv6.json');
+        const data = await response.json();
+
+        if (data.ipv6) {
+          ipv6ResultElement.textContent = '✅ You are connected to the internet via IPv6.';
+        } else {
+          ipv6ResultElement.textContent = '❌ You are not connected to the internet via IPv6.';
+        }
+
+        if (data.ipv6Dns) {
+          dnsResultElement.textContent = '✅ Your DNS resolver can handle IPv6 addresses.';
+        } else {
+          dnsResultElement.textContent = '❌ Your DNS resolver cannot handle IPv6 addresses.';
+        }
+      } catch (error) {
+        ipv6ResultElement.textContent = 'Error: Could not connect to the test server.';
+      }
+    });
+  </script>
 </Layout>
